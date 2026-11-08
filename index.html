@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#102c26" />
+<meta name="description" content="Eco Mission — minigame kiến thức môi trường gồm 10 thử thách tương tác." />
+<title>Eco Mission — Save Our Planet</title>
+<style>
+  :root {
+    --ink:#142c26; --muted:#6c7d73; --green:#237b55; --green-dark:#14563d;
+    --lime:#d8f276; --paper:#f5f7ef; --white:#fff; --line:#e4eadf;
+    --red:#c84f4f; --gold:#e6a83c; --shadow:0 24px 70px rgba(25,55,42,.12);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;min-height:100vh;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;}
+  button,input{font:inherit}
+  button{cursor:pointer}
+  button:focus-visible,input:focus-visible{outline:3px solid #a6ce51;outline-offset:3px}
+  .ambient{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:-1}
+  .ambient:before,.ambient:after{content:"";position:absolute;border-radius:50%;filter:blur(2px);opacity:.45}
+  .ambient:before{width:460px;height:460px;background:#e3efbd;top:-210px;right:-150px}
+  .ambient:after{width:360px;height:360px;background:#d9ebe0;bottom:-190px;left:-110px}
+  .shell{width:min(1120px,calc(100% - 40px));margin:auto;padding:28px 0 42px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+  .brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:-.04em;font-size:19px}
+  .brand-mark{display:grid;place-items:center;width:39px;height:39px;background:var(--ink);color:var(--lime);border-radius:13px;box-shadow:0 7px 20px #143a2b28}
+  .brand small{display:block;font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:800;margin-top:1px}
+  .top-tag{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--green);border:1px solid #cddfcf;background:#ffffffa6;padding:9px 13px;border-radius:999px}
+  .screen{display:none;animation:rise .38s ease both}.screen.active{display:block}
+  @keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+  .hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#102c26 0%,#174d39 62%,#236c49 100%);color:#fff;border-radius:30px;padding:clamp(28px,5vw,58px);box-shadow:var(--shadow);min-height:410px;display:grid;grid-template-columns:1.15fr .85fr;align-items:center;gap:24px}
+  .hero:before{content:"";position:absolute;width:430px;height:430px;border:1px solid #ffffff18;border-radius:50%;right:-65px;top:-160px;box-shadow:0 0 0 38px #ffffff08,0 0 0 78px #ffffff06}
+  .hero-copy{position:relative;z-index:1;max-width:590px}
+  .eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--lime);margin-bottom:18px}
+  .eyebrow:before{content:"";width:24px;height:2px;background:var(--lime)}
+  h1{font-size:clamp(43px,6.5vw,76px);line-height:.98;letter-spacing:-.07em;margin:0 0 20px;font-weight:950}
+  h1 em{font-style:normal;color:var(--lime)}
+  .hero-copy p{max-width:480px;color:#d8e8dc;line-height:1.7;font-size:15px;margin:0 0 28px}
+  .hero-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .primary{border:0;border-radius:14px;background:var(--lime);color:#163527;padding:15px 22px;font-weight:900;box-shadow:0 9px 24px #050f0a35;transition:transform .2s,box-shadow .2s}
+  .primary:hover{transform:translateY(-2px);box-shadow:0 13px 26px #050f0a45}
+  .ghost{border:1px solid #ffffff50;background:#ffffff0c;color:#fff;padding:14px 17px;border-radius:14px;font-weight:750}
+  .hero-art{position:relative;z-index:1;display:grid;place-items:center;min-height:270px}
+  .planet{width:min(290px,72vw);aspect-ratio:1;border-radius:50%;position:relative;background:radial-gradient(circle at 32% 26%,#eaf9a7 0 4%,#9fcd69 5% 13%,#3b9562 42%,#1d6849 72%,#164a37 100%);box-shadow:inset -25px -26px 45px #0c382c80,0 25px 65px #071a1360;display:grid;place-items:center;transform:rotate(-13deg)}
+  .planet:before{content:"";position:absolute;inset:8%;border:1px solid #eaffc94a;border-radius:50%;transform:rotate(24deg) scaleX(1.18)}
+  .planet:after{content:"";position:absolute;width:80%;height:27%;border:2px solid #d9f48d;border-radius:50%;transform:rotate(-23deg);box-shadow:0 0 20px #d9f48d75}
+  .planet-core{font-size:103px;filter:drop-shadow(0 9px 7px #123d2d65);transform:rotate(13deg)}
+  .orbit-dot{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--lime);box-shadow:0 0 20px var(--lime);top:20%;right:9%}
+  .float-label{position:absolute;bottom:13%;left:2%;background:#ffffff16;border:1px solid #ffffff28;padding:11px 14px;border-radius:13px;color:#e7f3dc;font-size:11px;font-weight:850;letter-spacing:.08em;backdrop-filter:blur(8px)}
+  .intro-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:18px;margin-top:18px}
+  .info-card{background:#ffffffc9;border:1px solid #e6ecdf;border-radius:22px;padding:21px 23px;box-shadow:0 10px 35px #1c48210a}
+  .info-title{font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:900;color:var(--muted);margin-bottom:14px}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .stat strong{font-size:25px;letter-spacing:-.05em;display:block}.stat span{font-size:11px;color:var(--muted);font-weight:700}
+  .rules{display:flex;gap:12px;align-items:flex-start;color:#53675c;font-size:12px;line-height:1.55;margin:7px 0}
+  .rule-icon{flex:0 0 24px;width:24px;height:24px;border-radius:8px;background:#edf5dc;display:grid;place-items:center}
+  .name-wrap{margin-top:21px;max-width:380px}
+  .name-wrap label{display:block;font-size:12px;color:#c7dbc9;font-weight:800;margin-bottom:8px}
+  .name-wrap input{width:100%;border:1px solid #ffffff40;background:#ffffff12;color:#fff;border-radius:12px;padding:13px 14px;outline:none}
+  .name-wrap input::placeholder{color:#d1e1d1a8}
+  .game-layout{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:18px;align-items:start}
+  .game-main,.side-card,.result-card{background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow)}
+  .game-main{padding:clamp(20px,3.5vw,36px);min-height:555px}
+  .game-top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}
+  .round-label{font-size:11px;font-weight:950;letter-spacing:.16em;color:var(--green);text-transform:uppercase}
+  .score-pill{background:#f0f5e8;color:#31533d;border-radius:999px;padding:9px 12px;font-size:12px;font-weight:900}
+  .progress-track{height:7px;background:#edf1e9;border-radius:20px;overflow:hidden;margin-bottom:28px}
+  .progress-fill{height:100%;width:0;background:linear-gradient(90deg,#76a94c,#c9e86b);border-radius:20px;transition:width .35s ease}
+  .question-meta{display:flex;align-items:center;gap:8px;margin-bottom:15px;flex-wrap:wrap}
+  .type-chip,.difficulty-chip{font-size:10px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;padding:7px 10px;border-radius:8px;background:#eff5e8;color:#42704c}
+  .difficulty-chip{background:#fff4df;color:#9b6a1d}
+  .question-title{font-size:clamp(22px,3.3vw,32px);letter-spacing:-.045em;line-height:1.2;margin:0 0 12px;max-width:720px}
+  .question-hint{margin:0 0 22px;color:#75857b;font-size:13px;line-height:1.6}
+  .choices{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+  .choice{border:1px solid #e3eae1;background:#fbfcf9;border-radius:15px;padding:15px 16px;text-align:left;color:#243d31;display:flex;align-items:center;gap:12px;min-height:66px;transition:.18s ease;font-size:14px;font-weight:750}
+  .choice:hover:not(:disabled){border-color:#8cbb72;background:#f5faed;transform:translateY(-1px)}
+  .choice .letter{width:30px;height:30px;display:grid;place-items:center;flex:0 0 30px;border-radius:9px;background:#edf2e8;color:#58745a;font-size:12px;font-weight:950}
+  .choice.selected{border-color:#6aa66b;background:#eef8e9;box-shadow:0 0 0 2px #8fbd6a24}
+  .choice.correct{border-color:#62a96e;background:#eef8ee;color:#1c6637}
+  .choice.wrong{border-color:#d78076;background:#fff1ef;color:#9a3631}
+  .choice:disabled{cursor:default}
+  .tf-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .tf-choice{padding:22px;border:1px solid #e2e9df;background:#fbfcf9;border-radius:16px;font-weight:900;font-size:17px;color:#2b4939;transition:.18s}
+  .tf-choice span{display:block;font-size:27px;margin-bottom:8px}
+  .tf-choice.selected{background:#f0f8e8;border-color:#75a86b}
+  .tf-choice.correct{background:#eef8ee;border-color:#62a96e;color:#1c6637}
+  .tf-choice.wrong{background:#fff1ef;border-color:#d78076;color:#9a3631}
+  .short-answer{width:100%;min-height:115px;resize:vertical;border:1px solid #dfe8dc;border-radius:15px;padding:16px;color:var(--ink);background:#fbfcf9;line-height:1.6}
+  .short-answer::placeholder{color:#9aa79d}
+  .short-note{font-size:11px;color:#88968d;margin-top:8px}
+  .feedback{display:none;margin-top:20px;border-radius:15px;padding:15px 16px;line-height:1.55;font-size:13px}
+  .feedback.show{display:block;animation:rise .25s ease}
+  .feedback.good{background:#eff8ee;border:1px solid #d3e9d1;color:#285d36}
+  .feedback.bad{background:#fff3ef;border:1px solid #f0d5ce;color:#8a4438}
+  .feedback strong{display:block;margin-bottom:4px;font-size:14px}
+  .game-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:24px}
+  .secondary{border:1px solid #dfe7dc;background:#fff;color:#42624c;border-radius:12px;padding:12px 15px;font-weight:850}
+  .secondary:disabled{opacity:.4;cursor:not-allowed}
+  .submit-btn{border:0;background:var(--ink);color:#fff;border-radius:12px;padding:13px 19px;font-weight:900;transition:.2s}
+  .submit-btn:hover{background:#24573f;transform:translateY(-1px)}
+  .submit-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+  .side-col{display:grid;gap:14px}
+  .side-card{padding:20px}
+  .side-heading{font-size:11px;text-transform:uppercase;letter-spacing:.13em;color:#718176;font-weight:950;margin-bottom:15px}
+  .timer{display:flex;align-items:center;justify-content:center;width:102px;height:102px;border:7px solid #edf3e7;border-top-color:#71a74f;border-right-color:#a8cf65;border-radius:50%;margin:4px auto 13px;font-size:27px;font-weight:950;letter-spacing:-.05em;color:#244a35}
+  .timer.warning{border-color:#fae5d4;border-top-color:#e5a13c;color:#a56820}
+  .timer-label{text-align:center;font-size:11px;color:#839087;font-weight:750}
+  .lives{display:flex;justify-content:center;gap:10px;font-size:22px;margin:8px 0 1px}
+  .life-lost{filter:grayscale(1);opacity:.25}
+  .mini-progress{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+  .mini-dot{height:7px;border-radius:20px;background:#edf1e9}.mini-dot.done{background:#80ad59}.mini-dot.current{background:#d2eb77;box-shadow:0 0 0 3px #edf6d6}
+  .side-foot{font-size:11px;color:#89958d;text-align:center;margin-top:12px}
+  .result-card{padding:clamp(25px,5vw,50px);text-align:center;max-width:820px;margin:0 auto;position:relative;overflow:hidden}
+  .result-orb{width:110px;height:110px;border-radius:35px;background:#eff7df;display:grid;place-items:center;font-size:55px;margin:0 auto 20px;transform:rotate(-7deg)}
+  .result-kicker{font-size:11px;color:var(--green);letter-spacing:.18em;font-weight:950;text-transform:uppercase}
+  .result-card h2{font-size:clamp(35px,6vw,58px);letter-spacing:-.06em;line-height:1;margin:12px 0}
+  .result-card>p{color:#718078;line-height:1.6;margin:0 auto 25px;max-width:520px}
+  .score-big{font-size:62px;letter-spacing:-.08em;font-weight:950;color:var(--green-dark)}
+  .score-big small{font-size:20px;letter-spacing:0;color:#86948a}
+  .result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:520px;margin:20px auto 26px}
+  .result-stat{background:#f6f8f2;border:1px solid #e8eee3;border-radius:15px;padding:14px 10px}
+  .result-stat strong{display:block;font-size:22px}.result-stat span{font-size:10px;color:#7b897f;font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+  .review{margin-top:27px;text-align:left;border-top:1px solid var(--line);padding-top:20px}
+  .review h3{font-size:14px;margin:0 0 12px}
+  .review-item{padding:12px 0;border-bottom:1px solid #edf1e9;font-size:12px;line-height:1.5}
+  .review-item strong{display:block;font-size:13px;margin-bottom:3px}
+  .review-item .ok{color:#2d8a4b;font-weight:900}.review-item .no{color:#bb5b4e;font-weight:900}
+  .result-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:23px}
+  .dark-btn{background:var(--ink);color:#fff;border:0;border-radius:13px;padding:14px 19px;font-weight:900}
+  .light-btn{background:#f3f7ed;color:#34563d;border:1px solid #e0ead9;border-radius:13px;padding:14px 19px;font-weight:900}
+  .footer{display:flex;justify-content:space-between;gap:12px;margin-top:20px;color:#92a095;font-size:10px;font-weight:750;letter-spacing:.04em}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,20px);background:#142c26;color:white;padding:12px 17px;border-radius:12px;font-size:12px;font-weight:800;opacity:0;pointer-events:none;transition:.25s;z-index:10}
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  .confetti{position:fixed;top:-15px;width:8px;height:13px;z-index:20;pointer-events:none;animation:fall 2.8s linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(760deg);opacity:.15}}
+  @media(max-width:800px){.hero{grid-template-columns:1fr;min-height:0}.hero-art{min-height:210px}.planet{width:210px}.planet-core{font-size:78px}.intro-grid{grid-template-columns:1fr}.game-layout{grid-template-columns:1fr}.side-col{grid-template-columns:1fr 1fr}.side-card:last-child{grid-column:1/-1}.game-main{min-height:0}}
+  @media(max-width:540px){.shell{width:min(100% - 24px,1120px);padding-top:16px}.topbar{margin-bottom:16px}.top-tag{font-size:9px;padding:8px 10px}.hero{border-radius:22px;padding:26px 22px}.hero-copy p{font-size:13px}.hero-art{min-height:190px}.planet{width:185px}.intro-grid{margin-top:12px}.info-card{padding:18px}.stats{gap:5px}.stat strong{font-size:21px}.stat span{font-size:9px}.game-main{padding:20px 16px;border-radius:19px}.choices{grid-template-columns:1fr}.choice{min-height:58px}.tf-choice{padding:16px 10px;font-size:15px}.side-col{grid-template-columns:1fr 1fr;gap:10px}.side-card{padding:15px}.timer{width:82px;height:82px;font-size:23px}.game-bottom{align-items:stretch}.secondary,.submit-btn{padding:12px 13px;font-size:12px}.footer{font-size:9px}.result-stats{gap:6px}.result-stat{padding:12px 4px}.result-stat strong{font-size:19px}}
+  @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="ambient" aria-hidden="true"></div>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark" aria-hidden="true">✳</div><div>ECO MISSION<small>LEARN • PLAY • PROTECT</small></div></div>
+    <div class="top-tag">10 CHALLENGES · 1 PLANET</div>
+  </header>
+
+  <main>
+    <section id="startScreen" class="screen active" aria-labelledby="mainTitle">
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">THE GREEN QUEST BEGINS</div>
+          <h1 id="mainTitle">SAVE OUR<br><em>PLANET.</em></h1>
+          <p>10 thử thách, 3 mạng và một hành tinh đang chờ bạn giải cứu. Kiểm tra kiến thức môi trường qua những câu hỏi nhanh, bất ngờ và vui nhộn!</p>
+          <div class="name-wrap"><label for="playerName">TÊN NGƯỜI CHƠI <span style="opacity:.65">(không bắt buộc)</span></label><input id="playerName" maxlength="20" placeholder="Nhập tên của bạn..." autocomplete="given-name" /></div>
+          <div class="hero-actions" style="margin-top:16px"><button class="primary" id="startBtn">BẮT ĐẦU NHIỆM VỤ <span aria-hidden="true">↗</span></button><button class="ghost" id="howBtn">CÁCH CHƠI</button></div>
+        </div>
+        <div class="hero-art" aria-hidden="true"><div class="planet"><div class="planet-core">🌍</div><i class="orbit-dot"></i></div><div class="float-label">✦ &nbsp; SMALL ACTIONS, BIG IMPACT</div></div>
+      </div>
+      <div class="intro-grid">
+        <div class="info-card"><div class="info-title">YOUR MISSION STATS</div><div class="stats"><div class="stat"><strong>10</strong><span>THỬ THÁCH</span></div><div class="stat"><strong>03</strong><span>MẠNG SỐNG</span></div><div class="stat"><strong>30s</strong><span>MỖI CÂU</span></div></div></div>
+        <div class="info-card"><div class="info-title">LUẬT CHƠI NHANH</div><div class="rules"><span class="rule-icon">⚡</span><span>Trả lời đúng nhận <b>10 điểm</b>; trả lời sai bị trừ 5 điểm và 1 mạng.</span></div><div class="rules"><span class="rule-icon">♥</span><span>Bạn có 3 mạng. Mất hết mạng thì nhiệm vụ kết thúc.</span></div><div class="rules"><span class="rule-icon">✎</span><span>Câu trả lời ngắn được chấm theo từ khóa và ý chính.</span></div></div>
+      </div>
+    </section>
+
+    <section id="gameScreen" class="screen" aria-label="Màn hình câu hỏi">
+      <div class="game-layout">
+        <div class="game-main">
+          <div class="game-top"><div class="round-label" id="roundLabel">MISSION 01 / 10</div><div class="score-pill">✦ <span id="scoreText">0</span> PTS</div></div>
+          <div class="progress-track" role="progressbar" aria-label="Tiến độ câu hỏi" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+          <div class="question-meta"><span class="type-chip" id="typeChip">MULTIPLE CHOICE</span><span class="difficulty-chip" id="difficultyChip">DỄ</span></div>
+          <h2 class="question-title" id="questionTitle">Câu hỏi sẽ xuất hiện ở đây</h2>
+          <p class="question-hint" id="questionHint">Chọn một đáp án đúng nhất.</p>
+          <div id="answerArea"></div>
+          <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+          <div class="game-bottom"><button class="secondary" id="quitBtn">← Thoát</button><button class="submit-btn" id="submitBtn" disabled>XÁC NHẬN ĐÁP ÁN</button></div>
+        </div>
+        <aside class="side-col" aria-label="Thông tin lượt chơi">
+          <div class="side-card"><div class="side-heading">TIME LEFT</div><div class="timer" id="timerCircle">30</div><div class="timer-label">GIÂY CÒN LẠI</div></div>
+          <div class="side-card"><div class="side-heading">YOUR LIVES</div><div class="lives" id="livesDisplay" aria-label="3 mạng còn lại"><span>♥</span><span>♥</span><span>♥</span></div><div class="side-foot">Đừng để hành tinh thất vọng!</div></div>
+          <div class="side-card"><div class="side-heading">MISSION TRACKER</div><div class="mini-progress" id="miniProgress"></div><div class="side-foot" id="trackerText">0 / 10 hoàn thành</div></div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="screen" aria-labelledby="resultTitle">
+      <div class="result-card">
+        <div class="result-orb" id="resultEmoji">🌱</div><div class="result-kicker">MISSION REPORT</div>
+        <h2 id="resultTitle">Nhiệm vụ hoàn tất!</h2>
+        <p id="resultMessage">Mỗi hành động nhỏ đều góp phần tạo nên thay đổi lớn.</p>
+        <div class="score-big"><span id="finalScore">0</span><small> / 100 PTS</small></div>
+        <div class="result-stats"><div class="result-stat"><strong id="correctCount">0</strong><span>Đúng</span></div><div class="result-stat"><strong id="wrongCount">0</strong><span>Chưa đúng</span></div><div class="result-stat"><strong id="lifeCount">0</strong><span>Mạng còn</span></div></div>
+        <div class="result-actions"><button class="dark-btn" id="restartBtn">CHƠI LẠI ↻</button><button class="light-btn" id="shareBtn">SAO CHÉP KẾT QUẢ</button></div>
+        <div class="review"><h3>📋 XEM LẠI CÂU TRẢ LỜI</h3><div id="reviewList"></div></div>
+      </div>
+    </section>
+  </main>
+  <footer class="footer"><span>© ECO MISSION · CLASSROOM EDITION</span><span>BE THE CHANGE YOU WANT TO SEE.</span></footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(() => {
+  'use strict';
+  const questions = [
+    {type:'mc',label:'TRẮC NGHIỆM',difficulty:'DỄ',title:'Điện năng từ tấm pin năng lượng mặt trời được tạo ra theo nguyên lý nào?',hint:'Chọn một đáp án đúng nhất.',choices:['Kích hoạt phản ứng hóa học','Hiệu ứng quang điện','Đốt cháy nhiên liệu','Phản ứng nhiệt hạch'],answer:1,explain:'Pin mặt trời chuyển đổi năng lượng ánh sáng thành điện năng nhờ hiệu ứng quang điện.'},
+    {type:'tf',label:'ĐÚNG / SAI',difficulty:'DỄ',title:'“Triều cường được tạo ra bằng cách đốt nhiên liệu hóa thạch.”',hint:'Nhận định này đúng hay sai?',answer:false,explain:'Sai. Triều cường liên quan đến thủy triều và các yếu tố như gió, áp suất khí quyển; không phải là sản phẩm trực tiếp của việc đốt nhiên liệu hóa thạch.'},
+    {type:'mc',label:'TRẮC NGHIỆM',difficulty:'TRUNG BÌNH',title:'Thành phần nào thường chiếm tỉ trọng lớn trong rác thải sinh hoạt đô thị ở Việt Nam?',hint:'Chọn thành phần phù hợp nhất.',choices:['Rác hữu cơ','Sắt thép','Thủy tinh','Pin và thiết bị điện tử'],answer:0,explain:'Rác hữu cơ như thức ăn thừa, rau củ và lá cây thường chiếm phần đáng kể trong rác thải sinh hoạt.'},
+    {type:'short',label:'TRẢ LỜI NGẮN',difficulty:'TRUNG BÌNH',title:'Nêu hai tác nhân chính do con người gây ra, góp phần làm Trái Đất nóng lên.',hint:'Nhập hai ý ngắn gọn. Ví dụ: “... và ...”',accepted:[['nhiên liệu hóa thạch','đốt than','đốt dầu','đốt xăng','fossil fuel'],['phá rừng','chặt phá rừng','mất rừng','deforestation']],explain:'Hai tác nhân tiêu biểu là đốt nhiên liệu hóa thạch (làm tăng khí nhà kính) và phá rừng (làm giảm khả năng hấp thụ CO₂).'},
+    {type:'tf',label:'ĐÚNG / SAI',difficulty:'TRUNG BÌNH',title:'“Xả nước thải chứa chất tẩy rửa trực tiếp ra sông ngòi có thể gây hại cho hệ sinh thái nước.”',hint:'Nhận định này đúng hay sai?',answer:true,explain:'Đúng. Nước thải chứa hóa chất và chất hoạt động bề mặt có thể làm thay đổi chất lượng nước, ảnh hưởng đến sinh vật thủy sinh.'},
+    {type:'mc',label:'TRẮC NGHIỆM',difficulty:'KHÓ',title:'Nguồn điện nào sau đây không cần đốt nhiên liệu để vận hành tua-bin phát điện?',hint:'Chọn một đáp án đúng nhất.',choices:['Điện gió','Điện than','Điện dầu','Điện khí đốt'],answer:0,explain:'Điện gió sử dụng động năng của gió để quay tua-bin, không cần đốt nhiên liệu trong quá trình phát điện.'},
+    {type:'short',label:'TRẢ LỜI NGẮN',difficulty:'KHÓ',title:'Hãy nêu một phương pháp xử lý rác hữu cơ tại gia đình.',hint:'Gợi ý: biến rác nhà bếp thành một sản phẩm có ích.',accepted:[['ủ phân','phân compost','compost','ủ rác','phân hữu cơ']],explain:'Có thể phân loại rác hữu cơ và ủ thành phân compost để bổ sung chất dinh dưỡng cho đất.'},
+    {type:'tf',label:'ĐÚNG / SAI',difficulty:'DỄ',title:'“Tắt đèn và các thiết bị điện khi không sử dụng giúp tiết kiệm năng lượng.”',hint:'Nhận định này đúng hay sai?',answer:true,explain:'Đúng. Tắt các thiết bị không cần thiết giúp giảm điện năng tiêu thụ và hạn chế lãng phí.'},
+    {type:'mc',label:'TRẮC NGHIỆM',difficulty:'TRUNG BÌNH',title:'Cây xanh trong thành phố mang lại lợi ích nào sau đây?',hint:'Chọn đáp án phù hợp nhất.',choices:['Giữ bụi, hấp thụ CO₂ và làm mát không gian','Tạo ra khói để lọc không khí','Làm tăng nhiệt độ đô thị','Ngăn hoàn toàn mọi loại ô nhiễm'],answer:0,explain:'Cây xanh có thể giữ bụi trên bề mặt lá, hấp thụ CO₂, tạo bóng mát và góp phần cải thiện môi trường đô thị.'},
+    {type:'short',label:'TRẢ LỜI NGẮN',difficulty:'KHÓ',title:'Nêu hai hành động cá nhân hằng ngày giúp bảo vệ môi trường.',hint:'Có thể kể các hành động về rác thải, điện, nước hoặc đi lại.',accepted:['tái chế','phân loại rác','giảm nhựa','dùng túi vải','tái sử dụng','recycle','reuse','tiết kiệm điện','tắt đèn','tiết kiệm nước','đi xe đạp','xe buýt','phương tiện công cộng','đi bộ','public transport'],minMatches:2,explain:'Ví dụ: phân loại và tái chế rác, tiết kiệm điện nước, đi xe đạp hoặc sử dụng phương tiện công cộng.'}
+  ];
+
+  const $ = id => document.getElementById(id);
+  const screens = ['startScreen','gameScreen','resultScreen'];
+  let index=0, score=0, lives=3, correct=0, wrong=0, seconds=30, tick=null, selected=null, answered=false, player='Bạn', history=[], soundOn=true;
+  let audioCtx=null;
+  function showScreen(id){screens.forEach(s=>$(s).classList.toggle('active',s===id));window.scrollTo({top:0,behavior:'smooth'});}
+  function beep(ok){if(!soundOn)return;try{audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.value=ok?740:210;g.gain.setValueAtTime(.055,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.16);o.start();o.stop(audioCtx.currentTime+.17);}catch(e){}}
+  function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2100);}
+  function normalize(s){return String(s||'').toLocaleLowerCase('vi').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();}
+  function start(){index=0;score=0;lives=3;correct=0;wrong=0;history=[];player=$('playerName').value.trim()||'Bạn';showScreen('gameScreen');renderQuestion();}
+  function renderTracker(){const done=index;const el=$('miniProgress');el.innerHTML='';for(let i=0;i<10;i++){const d=document.createElement('span');d.className='mini-dot'+(i<done?' done':i===index?' current':'');el.appendChild(d);} $('trackerText').textContent=`${done} / 10 hoàn thành`;}
+  function renderLives(){$('livesDisplay').innerHTML='';for(let i=0;i<3;i++){const s=document.createElement('span');s.textContent='♥';if(i>=lives)s.className='life-lost';$('livesDisplay').appendChild(s);} $('livesDisplay').setAttribute('aria-label',`${lives} mạng còn lại`);}
+  function renderQuestion(){clearInterval(tick);selected=null;answered=false;seconds=30;const q=questions[index];$('roundLabel').textContent=`MISSION ${String(index+1).padStart(2,'0')} / 10`;$('scoreText').textContent=score;$('progressFill').style.width=`${index/10*100}%`;$('progressBar').setAttribute('aria-valuenow',String(index));$('typeChip').textContent=q.label;$('difficultyChip').textContent=q.difficulty;$('questionTitle').textContent=q.title;$('questionHint').textContent=q.hint;$('feedback').className='feedback';$('feedback').innerHTML='';$('submitBtn').disabled=true;$('submitBtn').textContent=q.type==='short'?'GỬI CÂU TRẢ LỜI':'XÁC NHẬN ĐÁP ÁN';renderLives();renderTracker();$('timerCircle').textContent=seconds;$('timerCircle').classList.remove('warning');
+    const area=$('answerArea');area.innerHTML='';
+    if(q.type==='mc'){
+      const grid=document.createElement('div');grid.className='choices';q.choices.forEach((choice,i)=>{const b=document.createElement('button');b.type='button';b.className='choice';b.innerHTML=`<span class="letter">${String.fromCharCode(65+i)}</span><span></span>`;b.querySelector('span:last-child').textContent=choice;b.addEventListener('click',()=>select(i,b));grid.appendChild(b);});area.appendChild(grid);
+    } else if(q.type==='tf'){
+      const grid=document.createElement('div');grid.className='tf-grid';[{v:true,t:'ĐÚNG',e:'✓'},{v:false,t:'SAI',e:'✕'}].forEach((o)=>{const b=document.createElement('button');b.type='button';b.className='tf-choice';b.innerHTML=`<span>${o.e}</span>${o.t}`;b.addEventListener('click',()=>select(o.v,b));grid.appendChild(b);});area.appendChild(grid);
+    } else {
+      const ta=document.createElement('textarea');ta.id='shortInput';ta.className='short-answer';ta.maxLength=240;ta.placeholder='Viết câu trả lời của bạn tại đây...';ta.setAttribute('aria-label','Câu trả lời ngắn');ta.addEventListener('input',()=>{$('submitBtn').disabled=!ta.value.trim();});area.appendChild(ta);const n=document.createElement('div');n.className='short-note';n.textContent='Tối đa 240 ký tự · Không cần viết thành đoạn văn dài';area.appendChild(n);ta.focus();
+    }
+    tick=setInterval(()=>{seconds--;const t=$('timerCircle');t.textContent=seconds;t.classList.toggle('warning',seconds<=10);if(seconds<=0){clearInterval(tick);grade(null,true);}},1000);
+  }
+  function select(value,button){if(answered)return;selected=value;document.querySelectorAll('.choice,.tf-choice').forEach(b=>b.classList.remove('selected'));button.classList.add('selected');$('submitBtn').disabled=false;}
+  function assess(q,value){if(q.type==='mc')return value===q.answer;if(q.type==='tf')return value===q.answer;const text=normalize(value);if(!text)return false;if(q.minMatches)return q.accepted.filter(k=>text.includes(normalize(k))).length>=q.minMatches;const groups=q.accepted;return groups.every(group=>group.some(k=>text.includes(normalize(k))));}
+  function answerText(q,value){if(q.type==='mc')return value==null?'Hết giờ':`${String.fromCharCode(65+value)}. ${q.choices[value]}`;if(q.type==='tf')return value==null?'Hết giờ':value?'Đúng':'Sai';return value||'Chưa nhập câu trả lời';}
+  function grade(timedOut=false){if(answered)return;const q=questions[index];let value=q.type==='short'?($('shortInput')?.value.trim()||''):selected;if(q.type==='short'&&!value&&!timedOut){toast('Bạn hãy nhập câu trả lời trước nhé!');return;}if(q.type!=='short'&&value===null&&!timedOut){toast('Hãy chọn một đáp án nhé!');return;}answered=true;clearInterval(tick);const ok=!timedOut&&assess(q,value);if(ok){score+=10;correct++;}else{score=Math.max(0,score-5);wrong++;lives=Math.max(0,lives-1);}beep(ok);history.push({q,ok,value:timedOut?null:value,display:answerText(q,timedOut?null:value),timedOut});
+    if(q.type!=='short'){document.querySelectorAll('.choice,.tf-choice').forEach((b,i)=>{b.disabled=true;if((q.type==='mc'&&i===q.answer)||(q.type==='tf'&&((i===0&&q.answer===true)||(i===1&&q.answer===false))))b.classList.add('correct');});const selectedButton=[...document.querySelectorAll('.choice,.tf-choice')].find(b=>b.classList.contains('selected'));if(selectedButton&&!ok)selectedButton.classList.add('wrong');}else{$('shortInput').disabled=true;}
+    $('scoreText').textContent=score;renderLives();const fb=$('feedback');fb.className=`feedback show ${ok?'good':'bad'}`;fb.innerHTML=`<strong>${timedOut?'⌛ Hết giờ!':ok?'✓ Chính xác! +10 điểm':'✕ Chưa chính xác!'} ${!ok&&!timedOut?'−1 mạng':''}</strong><span>${q.explain}</span>`;$('submitBtn').disabled=false;$('submitBtn').textContent=index===9||lives===0?'XEM KẾT QUẢ':'CÂU TIẾP THEO →';
+  }
+  function nextQuestion(){if(!answered){grade(false);return;}if(lives<=0||index>=questions.length-1){finish();return;}index++;renderQuestion();}
+  function finish(){clearInterval(tick);$('progressFill').style.width=`${history.length/10*100}%`;$('progressBar').setAttribute('aria-valuenow',String(history.length));const pct=score/100;let emoji='🌱',title='Hành trình đáng tự hào!',msg=`Làm tốt lắm, ${player}! Bạn đã góp thêm một chút hiểu biết cho hành tinh xanh.`;if(pct>=.8){emoji='🏆';title='ECO CHAMPION!';msg=`Xuất sắc, ${player}! Bạn đã chứng minh mình là một chiến binh xanh thực thụ.`;}else if(pct<.4){emoji='🌍';title='Nhiệm vụ chưa trọn vẹn';msg=`Đừng nản lòng, ${player}. Mỗi câu trả lời là một cơ hội học thêm điều mới.`;}else if(lives===0){emoji='💚';title='Bạn đã chiến đấu hết mình!';msg=`Bạn đã dùng hết mạng, ${player}, nhưng hành trình bảo vệ môi trường vẫn tiếp tục ngoài đời thực.`;}$('resultEmoji').textContent=emoji;$('resultTitle').textContent=title;$('resultMessage').textContent=msg;$('finalScore').textContent=score;$('correctCount').textContent=correct;$('wrongCount').textContent=wrong;$('lifeCount').textContent=lives;
+    const list=$('reviewList');list.innerHTML='';history.forEach((h,i)=>{const d=document.createElement('div');d.className='review-item';const strong=document.createElement('strong');strong.textContent=`${i+1}. ${h.q.title}`;const line=document.createElement('div');line.textContent=`Bạn trả lời: ${h.display}`;const status=document.createElement('div');status.className=h.ok?'ok':'no';status.textContent=h.ok?'✓ Chính xác':'✕ Chưa chính xác';const expl=document.createElement('div');expl.style.color='#7b897f';expl.textContent=h.q.explain;d.append(strong,line,status,expl);list.appendChild(d);});showScreen('resultScreen');if(score>=70)confetti();saveBest();}
+  function saveBest(){try{const rows=JSON.parse(localStorage.getItem('ecoMissionScores')||'[]');rows.push({name:player,score,date:new Date().toISOString()});rows.sort((a,b)=>b.score-a.score);localStorage.setItem('ecoMissionScores',JSON.stringify(rows.slice(0,5)));}catch(e){}}
+  function confetti(){for(let i=0;i<42;i++){const p=document.createElement('i');p.className='confetti';p.style.left=Math.random()*100+'vw';p.style.background=['#8dbb56','#d5ee79','#e6a83c','#3c986c'][i%4];p.style.animationDelay=Math.random()*.7+'s';p.style.transform=`rotate(${Math.random()*180}deg)`;document.body.appendChild(p);setTimeout(()=>p.remove(),3500);}}
+  $('startBtn').addEventListener('click',start);$('submitBtn').addEventListener('click',()=>{if(answered)nextQuestion();else grade(false);});$('restartBtn').addEventListener('click',()=>{showScreen('startScreen');});$('quitBtn').addEventListener('click',()=>{if(confirm('Bạn muốn kết thúc lượt chơi hiện tại?')){clearInterval(tick);showScreen('startScreen');}});
+  $('howBtn').addEventListener('click',()=>alert('CÁCH CHƠI\n\n• Có 10 câu hỏi: trắc nghiệm, đúng/sai và trả lời ngắn.\n• Mỗi câu có 30 giây.\n• Đúng: +10 điểm. Sai hoặc hết giờ: −1 mạng và −5 điểm (điểm không thấp hơn 0).\n• Bạn có 3 mạng. Hãy cố gắng đạt 100 điểm!'));
+  $('shareBtn').addEventListener('click',async()=>{const text=`${player} đạt ${score}/100 điểm trong ECO MISSION — ${correct}/10 câu đúng!`;try{await navigator.clipboard.writeText(text);toast('Đã sao chép kết quả!');}catch(e){toast(text);}});
+  document.addEventListener('keydown',e=>{if(!$('gameScreen').classList.contains('active')||answered)return;if(['1','2','3','4'].includes(e.key)){const q=questions[index];if(q.type==='mc'){const b=document.querySelectorAll('.choice')[Number(e.key)-1];if(b)b.click();}else if(q.type==='tf'&&Number(e.key)<=2){const b=document.querySelectorAll('.tf-choice')[Number(e.key)-1];if(b)b.click();}}if(e.key==='Enter'&&e.target.tagName!=='TEXTAREA'&&!$('submitBtn').disabled){$('submitBtn').click();}});
+})();
+</script>
+</body>
+</html>
